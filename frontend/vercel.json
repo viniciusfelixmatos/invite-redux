@@ -1,29 +1,37 @@
 {
-    "version": 2,
-    "builds": [
-      {
-        "src": "vite.config.js",
-        "use": "@vercel/static-build",
-        "config": {
-          "distDir": "dist"
-        }
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist",
+        "clean": true
       }
-    ],
-    "routes": [
-      {
-        "src": "/assets/(.*)",
-        "headers": {
-          "Cache-Control": "public, max-age=31536000, immutable"
-        }
-      },
-      {
-        "src": "/api/(.*)",
-        "dest": "https://backend-php-api.onrender.com/api/$1"
-      },
-      {
-        "src": "/(.*)",
-        "dest": "/index.html",
-        "status": 200
+    }
+  ],
+  "routes": [
+    {
+      "src": "/assets/(.*)",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
       }
-    ]
-  }
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "https://backend-php-api.onrender.com/api/$1",
+      "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html",
+      "status": 200
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
