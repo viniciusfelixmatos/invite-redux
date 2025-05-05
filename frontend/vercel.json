@@ -34,16 +34,5 @@
       "dest": "/index.html",
       "status": 200
     }
-  ],
-  "headers": [
-    {
-      "source": "/flags/(.*).svg",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "image/svg+xml"
-        }
-      ]
-    }
   ]
 }
