@@ -9,7 +9,8 @@ function useLogin() {
     const navigate = useNavigate();
     const { t, i18n } = useTranslation();
 
-    const API_URL = 'https://backend-php-api.onrender.com/api';
+    // URL correta da sua API no Render
+    const API_URL = 'https://invite-redux.onrender.com/api';
 
     const messages = {
         success: {
@@ -26,12 +27,12 @@ function useLogin() {
                 pt: 'Tempo esgotado. O servidor não está respondendo.'
             },
             invalidResponse: {
-                en: 'Invalid server response',
-                pt: 'Resposta inválida do servidor'
+                en: 'Invalid server response.',
+                pt: 'Resposta inválida do servidor.'
             },
             invalidCredentials: {
-                en: 'Invalid credentials',
-                pt: 'Credenciais inválidas'
+                en: 'Invalid credentials.',
+                pt: 'Credenciais inválidas.'
             }
         }
     };
@@ -48,10 +49,7 @@ function useLogin() {
                     "Content-Type": "application/json",
                     "X-Language": i18n.language
                 },
-                body: JSON.stringify({ 
-                    login: loginInput, 
-                    password 
-                }),
+                body: JSON.stringify({ login: loginInput, password }),
                 signal: AbortSignal.timeout(15000)
             });
 
@@ -75,30 +73,28 @@ function useLogin() {
                 localStorage.setItem("authToken", data.token || "");
                 localStorage.setItem("username", data.username || "");
                 localStorage.setItem("userLanguage", data.language || i18n.language);
-                
+
                 if (data.language && data.language !== i18n.language) {
                     i18n.changeLanguage(data.language);
                 }
 
                 setSuccessMessage(data.message || messages.success[i18n.language]);
-                
                 setTimeout(() => navigate("/home"), 1000);
-                
                 return true;
             } else {
                 throw new Error(data.message || messages.errors.invalidCredentials[i18n.language]);
             }
         } catch (err) {
             let errorMessage;
-            
+
             if (err.name === 'AbortError') {
                 errorMessage = messages.errors.timeout[i18n.language];
             } else if (err.message.includes('Failed to fetch')) {
                 errorMessage = messages.errors.network[i18n.language];
             } else {
-                errorMessage = err.message;
+                errorMessage = err.message || messages.errors.invalidResponse[i18n.language];
             }
-            
+
             setError(errorMessage);
             return false;
         } finally {
@@ -111,10 +107,10 @@ function useLogin() {
         setSuccessMessage(null);
     };
 
-    return { 
-        login, 
-        loading, 
-        error, 
+    return {
+        login,
+        loading,
+        error,
         successMessage,
         resetMessages
     };

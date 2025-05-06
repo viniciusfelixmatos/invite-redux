@@ -7,7 +7,7 @@ function useRegister() {
     const [isLoading, setIsLoading] = useState(false);
     const { i18n } = useTranslation();
 
-    const API_URL = 'https://backend-php-api.onrender.com/api';
+    const API_URL = 'https://invite-redux.onrender.com/api';
 
     const messages = {
         success: {
@@ -24,8 +24,16 @@ function useRegister() {
                 pt: 'Tempo esgotado. O servidor não está respondendo.'
             },
             invalidResponse: {
-                en: 'Invalid server response',
-                pt: 'Resposta inválida do servidor'
+                en: 'Invalid server response.',
+                pt: 'Resposta inválida do servidor.'
+            },
+            general: {
+                en: 'An unexpected error occurred.',
+                pt: 'Ocorreu um erro inesperado.'
+            },
+            requiredFields: {
+                en: 'Please fill in all required fields.',
+                pt: 'Por favor, preencha todos os campos obrigatórios.'
             }
         }
     };
@@ -36,7 +44,7 @@ function useRegister() {
         setSuccessMessage(null);
 
         if (!login || !password || !username) {
-            setError(i18n.t('register.errors.requiredFields'));
+            setError(messages.errors.requiredFields[i18n.language]);
             setIsLoading(false);
             return false;
         }
@@ -60,38 +68,36 @@ function useRegister() {
 
             const data = await response.json();
 
-            if (!response.ok) {
-                throw new Error(data.message || `Error ${response.status}`);
+            if (!response.ok || data.status !== "success") {
+                throw new Error(data.message || messages.errors.general[i18n.language]);
             }
 
-            if (data.status === "success") {
-                setSuccessMessage(data.message || messages.success[i18n.language]);
-                return true;
-            } else {
-                throw new Error(data.message || i18n.t('register.errors.general'));
-            }
+            setSuccessMessage(data.message || messages.success[i18n.language]);
+            return true;
+
         } catch (err) {
             let errorMessage;
-            
+
             if (err.name === 'AbortError') {
                 errorMessage = messages.errors.timeout[i18n.language];
             } else if (err.message.includes('Failed to fetch')) {
                 errorMessage = messages.errors.network[i18n.language];
             } else {
-                errorMessage = err.message;
+                errorMessage = err.message || messages.errors.general[i18n.language];
             }
-            
+
             setError(errorMessage);
             return false;
+
         } finally {
             setIsLoading(false);
         }
     };
 
-    return { 
-        register, 
-        error, 
-        successMessage, 
+    return {
+        register,
+        error,
+        successMessage,
         isLoading,
         resetMessages: () => {
             setError(null);
