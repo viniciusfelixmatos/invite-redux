@@ -1,21 +1,27 @@
 <?php
+
+// Set content type as JSON and configure CORS headers
 header('Content-Type: application/json; charset=UTF-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Language');
 
+// Enable error reporting (useful during development, disable in production)
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+// Determine the language based on the request headers (default: English)
 $language = 'en';
 if (isset($_SERVER['HTTP_X_LANGUAGE'])) {
     $language = strtolower(substr($_SERVER['HTTP_X_LANGUAGE'], 0, 2));
 } elseif (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
     $language = strtolower(substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2));
 }
+// Ensure the language is either 'pt' or 'en', fallback to 'en'
 $language = in_array($language, ['pt', 'en']) ? $language : 'en';
 
+// Multi-language messages used for success and error responses
 $messages = [
     'success' => [
         'en' => 'User registered successfully',
@@ -73,17 +79,20 @@ $messages = [
     ]
 ];
 
+// Respond to OPTIONS requests quickly (CORS preflight)
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit;
 }
 
 try {
+    // Read the JSON data sent in the request body
     $jsonInput = file_get_contents('php://input');
     if ($jsonInput === false) {
         throw new Exception($messages['errors']['request_read'][$language]);
     }
 
+    // Decode the incoming JSON data
     $data = json_decode($jsonInput, true);
     if (json_last_error() !== JSON_ERROR_NONE) {
         throw new Exception(sprintf(
@@ -92,52 +101,55 @@ try {
         ));
     }
 
+    // Define the required fields with validation rules for length and pattern
     $required = [
         'login' => ['min' => 3, 'max' => 50, 'pattern' => '/^[a-zA-Z0-9_]+$/'],
         'password' => ['min' => 6, 'max' => 100],
         'username' => ['min' => 2, 'max' => 50]
     ];
 
+    // Validate each field according to its rules: existence, length, and format
     foreach ($required as $field => $rules) {
         if (!isset($data[$field])) {
             throw new Exception(sprintf(
-                $messages['errors']['missing_field'][$primaryLanguage],
+                $messages['errors']['missing_field'][$language],
                 $field
             ));
         }
-        
+
         $value = trim($data[$field]);
         if (empty($value)) {
             throw new Exception(sprintf(
-                $messages['errors']['empty_field'][$primaryLanguage],
+                $messages['errors']['empty_field'][$language],
                 $field
             ));
         }
-        
+
         if (strlen($value) < $rules['min']) {
             throw new Exception(sprintf(
-                $messages['errors']['min_length'][$primaryLanguage],
+                $messages['errors']['min_length'][$language],
                 $field,
                 $rules['min']
             ));
         }
-        
+
         if (strlen($value) > $rules['max']) {
             throw new Exception(sprintf(
-                $messages['errors']['max_length'][$primaryLanguage],
+                $messages['errors']['max_length'][$language],
                 $field,
                 $rules['max']
             ));
         }
-        
+
         if (isset($rules['pattern']) && !preg_match($rules['pattern'], $value)) {
             throw new Exception(sprintf(
-                $messages['errors']['invalid_chars'][$primaryLanguage],
+                $messages['errors']['invalid_chars'][$language],
                 $field
             ));
         }
     }
 
+    // Path to the file storing user data
     $usuariosFile = __DIR__ . '/usuarios.json';
 
     $usuarios = [];
@@ -146,7 +158,7 @@ try {
         if ($fileContent === false) {
             throw new Exception($messages['errors']['file_read'][$language]);
         }
-        
+
         $usuarios = json_decode($fileContent, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new Exception(sprintf(
@@ -156,6 +168,7 @@ try {
         }
     }
 
+    // Check if the login or username already exists
     foreach ($usuarios as $usuario) {
         if ($usuario['login'] === $data['login']) {
             throw new Exception($messages['errors']['login_exists'][$language]);
@@ -165,6 +178,7 @@ try {
         }
     }
 
+    // Create a new user with hashed password and creation date
     $novoUsuario = [
         "login" => $data['login'],
         "password" => password_hash($data['password'], PASSWORD_DEFAULT),
@@ -174,6 +188,7 @@ try {
 
     $usuarios[] = $novoUsuario;
 
+    // Save the user data to the file with exclusive lock
     $result = file_put_contents(
         $usuariosFile, 
         json_encode($usuarios, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE),
@@ -184,6 +199,7 @@ try {
         throw new Exception($messages['errors']['save_error'][$language]);
     }
 
+    // Return success response
     http_response_code(201);
     echo json_encode([
         "status" => "success",
@@ -196,8 +212,9 @@ try {
     ]);
 
 } catch (Exception $e) {
+    // Log the error for debugging and return error response
     error_log('Registration Error: ' . $e->getMessage());
-    
+
     http_response_code(400);
     echo json_encode([
         "status" => "error",

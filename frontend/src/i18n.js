@@ -2,6 +2,7 @@ import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 
+// Defines the translation resources for each supported language
 const resources = {
   en: {
     translation: {
@@ -47,15 +48,16 @@ const resources = {
   },
 };
 
+// Initializes the i18n instance with plugins and configuration
 i18n
-  .use(LanguageDetector)
-  .use(initReactI18next)
+  .use(LanguageDetector)        // Detects user language from the browser
+  .use(initReactI18next)        // Passes i18n instance to react-i18next
   .init({
-    resources,
-    fallbackLng: "en",
+    resources,                  // Loaded translation resources
+    fallbackLng: "en",          // Default language if detection fails
     interpolation: {
-      escapeValue: false,
+      escapeValue: false,       // React already escapes by default
     },
   });
 
-export default i18n;
+export default i18n;            // Makes the configured i18n available for import

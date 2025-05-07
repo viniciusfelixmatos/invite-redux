@@ -2,13 +2,18 @@ import { useState } from "react";
 import { useTranslation } from 'react-i18next';
 
 function useRegister() {
+    // State to handle error, success message, and loading indicator
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+
+    // Language detection from i18n (internationalization)
     const { i18n } = useTranslation();
 
+    // Backend API base URL
     const API_URL = 'https://invite-redux.onrender.com/api';
 
+    // Multi-language success and error messages
     const messages = {
         success: {
             en: 'Registration successful!',
@@ -38,11 +43,13 @@ function useRegister() {
         }
     };
 
+    // Function to handle user registration
     const register = async (login, password, username) => {
-        setIsLoading(true);
-        setError(null);
-        setSuccessMessage(null);
+        setIsLoading(true);      // Start loading
+        setError(null);          // Clear previous error
+        setSuccessMessage(null); // Clear previous success message
 
+        // Validate required fields
         if (!login || !password || !username) {
             setError(messages.errors.requiredFields[i18n.language]);
             setIsLoading(false);
@@ -50,6 +57,7 @@ function useRegister() {
         }
 
         try {
+            // Send POST request to register user
             const response = await fetch(`${API_URL}/register.php`, {
                 method: "POST",
                 headers: {
@@ -57,9 +65,10 @@ function useRegister() {
                     "X-Language": i18n.language
                 },
                 body: JSON.stringify({ login, password, username }),
-                signal: AbortSignal.timeout(15000)
+                signal: AbortSignal.timeout(15000) // Abort request after 15 seconds
             });
 
+            // Validate content type
             const contentType = response.headers.get('content-type');
             if (!contentType || !contentType.includes('application/json')) {
                 const errorText = await response.text();
@@ -68,21 +77,28 @@ function useRegister() {
 
             const data = await response.json();
 
+            // Check for success response
             if (!response.ok || data.status !== "success") {
                 throw new Error(data.message || messages.errors.general[i18n.language]);
             }
 
+            // Registration successful
             setSuccessMessage(data.message || messages.success[i18n.language]);
             return true;
 
         } catch (err) {
             let errorMessage;
 
+            // Timeout error
             if (err.name === 'AbortError') {
                 errorMessage = messages.errors.timeout[i18n.language];
-            } else if (err.message.includes('Failed to fetch')) {
+            }
+            // Network connection error
+            else if (err.message.includes('Failed to fetch')) {
                 errorMessage = messages.errors.network[i18n.language];
-            } else {
+            }
+            // Fallback for unknown errors
+            else {
                 errorMessage = err.message || messages.errors.general[i18n.language];
             }
 
@@ -90,7 +106,7 @@ function useRegister() {
             return false;
 
         } finally {
-            setIsLoading(false);
+            setIsLoading(false); // Always stop loading indicator
         }
     };
 

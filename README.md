@@ -6,21 +6,59 @@
 
 **Invite-Redux** is the evolution of the original **Invite** project, built to deepen understanding of full-stack web development. It offers user authentication, a global chat, multilingual support, and deploy-ready structure using modern technologies and international standards.
 
-<p align="center">
-  <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" />
-  <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" />
-  <img src="https://img.shields.io/badge/PHP-777BB4?style=for-the-badge&logo=php&logoColor=white" />
-  <img src="https://img.shields.io/badge/JSON-000000?style=for-the-badge&logo=json&logoColor=white" />
-  <img src="https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" />
-  <img src="https://img.shields.io/badge/Render-00D3FA?style=for-the-badge&logo=render&logoColor=white" />
-</p>
+---
+
+## 📸 Screenshots of Routes
+
+### 1. **Login Page**
+
+![Login Page](./assets/invite-redux-github.png)
+
+**Description:**  
+This is the login screen where users can enter their credentials to access their account. The page includes fields for login and password, along with a button to submit the form. If the login is successful, users are redirected to the dashboard.
+
+---
+
+### 2. **Registration Page**
+
+![Registration Page](./assets/registration-page.png)
+
+**Description:**  
+On this page, new users can register by filling out their username, login, and password. After submission, they are redirected to the login page. Data is temporarily stored in a JSON file.
+
+---
+
+### 3. **Home Page (Global Chat)**
+
+![Home Page](./assets/home-page.png)
+
+**Description:**  
+The **Home** page is the central hub for authenticated users. It features a **Global Chat** where users can send and receive messages in real-time. All logged-in users can see the messages shared in the chat. This page also includes the user's profile and any relevant application updates. The chat provides a simple, user-friendly interface for communication between users.
+
+---
+
+## 🚨 Important Note on Data Persistence
+
+Currently, the backend does not support persistent data storage. The data is temporarily stored in a JSON file, and will be lost upon restart of the hosting services (as the backend is hosted on free-tier platforms).  
+
+For future versions, we plan to integrate a persistent database solution, such as PostgreSQL, to ensure data durability and reliability.
 
 ---
 
 ## 🔗 Quick Links
 
 - 🌐 Access the project online: [invite-redux.vercel.app](https://invite-redux.vercel.app)
-- 💾 GitHub repository: [github.com/YourUsername/INVITE-REDUX](https://github.com/YourUsername/INVITE-REDUX)
+- 💾 GitHub repository: [github.com/YourUsername/INVITE-REDUX](https://github.com/viniciusfelixmatos/invite-redux)
+
+---
+
+## 🧩 Future Improvements
+
+- [ ] Replace JSON with relational DB (PostgreSQL)  
+- [ ] Implement JWT-based authentication  
+- [ ] Use WebSockets for real-time chat  
+- [ ] Responsive mobile-first redesign  
+- [ ] Admin panel for message moderation
 
 ---
 
@@ -125,11 +163,11 @@ Build a functional full-stack web application that allows:
 
 ## 👨‍💻 Developer
 
-**Name:** [Your Name]  
+**Name:** Vinicius Matos  
 **Role:** Frontend Developer  
 **Tech Stack:** React, PHP, Vite, JSON  
 **Portfolio / GitHub:** [your-link]  
-**Contact:** [email@example.com]
+**Contact:** viniciusmatosfelix2022@gmail.com
 
 ---
 
